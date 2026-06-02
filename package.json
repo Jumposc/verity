@@ -2,6 +2,7 @@
   "name": "verity",
   "private": true,
   "version": "0.0.0",
+  "license": "MIT",
   "description": "Structured style-fidelity checker: Figma design truth vs implementation. Deterministic measure, AI judges only what needs judgment.",
   "type": "module",
   "packageManager": "pnpm@9.12.0",

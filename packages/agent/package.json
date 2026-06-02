@@ -1,6 +1,7 @@
 {
   "name": "@solvir/verity-agent",
   "version": "0.0.0",
+  "license": "MIT",
   "description": "Verity agent: orchestrates extract, match, diff, AI judge/fix and self-eval (Playwright + Claude Agent SDK).",
   "type": "module",
   "bin": {

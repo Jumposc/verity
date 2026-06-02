@@ -1,6 +1,7 @@
 {
   "name": "@solvir/verity-eval",
   "version": "0.0.0",
+  "license": "MIT",
   "description": "Verity eval: gold set + evaluator + self-iteration loop that tunes schema/weights/prompts.",
   "type": "module",
   "main": "./dist/index.js",

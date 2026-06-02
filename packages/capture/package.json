@@ -1,6 +1,7 @@
 {
   "name": "@solvir/verity-capture",
   "version": "0.0.0",
+  "license": "MIT",
   "description": "Verity capture: in-browser DOM style extraction (injected by Playwright / Chrome DevTools MCP).",
   "type": "module",
   "main": "./dist/index.js",

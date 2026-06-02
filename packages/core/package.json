@@ -1,6 +1,7 @@
 {
   "name": "@solvir/verity-core",
   "version": "0.0.0",
+  "license": "MIT",
   "description": "Verity core: deterministic style extraction, matching and diff. Zero AI, zero IO.",
   "type": "module",
   "main": "./dist/index.js",
