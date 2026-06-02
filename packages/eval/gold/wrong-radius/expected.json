@@ -1,0 +1,7 @@
+{
+  "id": "wrong-radius",
+  "fidelityScore": 82,
+  "criticalFindings": [
+    "borderRadius"
+  ]
+}

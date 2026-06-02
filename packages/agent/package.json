@@ -1,0 +1,30 @@
+{
+  "name": "@solvir/verity-agent",
+  "version": "0.0.0",
+  "description": "Verity agent: orchestrates extract, match, diff, AI judge/fix and self-eval (Playwright + Claude Agent SDK).",
+  "type": "module",
+  "bin": {
+    "verity": "./dist/cli.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts src/cli.ts --format esm --dts --clean",
+    "test": "vitest run --passWithNoTests",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@solvir/verity-capture": "workspace:*",
+    "@solvir/verity-core": "workspace:*",
+    "playwright": "^1.48.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.1"
+  }
+}

@@ -1,0 +1,236 @@
+{
+  "source": "figma",
+  "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 16
+  },
+  "nodes": [
+    {
+      "id": "309:1578",
+      "source": "figma",
+      "kind": "container",
+      "name": "State=Off",
+      "text": null,
+      "role": null,
+      "componentName": "State=Off",
+      "domPath": null,
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "w": 32,
+        "h": 16
+      },
+      "layout": {
+        "display": null,
+        "flexDirection": null,
+        "justifyContent": null,
+        "alignItems": null,
+        "gap": null
+      },
+      "box": {
+        "padding": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "margin": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "typography": {
+        "fontFamily": null,
+        "fontSize": null,
+        "fontWeight": null,
+        "lineHeight": null,
+        "letterSpacing": null,
+        "textAlign": null,
+        "color": null
+      },
+      "fill": {
+        "backgroundColor": null,
+        "backgroundKind": "none",
+        "imageRef": null
+      },
+      "border": {
+        "width": null,
+        "style": null,
+        "color": null,
+        "radius": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "effect": {
+        "boxShadow": null,
+        "opacity": 1
+      },
+      "parentId": null,
+      "childIds": [
+        "309:1579"
+      ],
+      "isLayoutWrapper": false,
+      "weakCoverage": false
+    },
+    {
+      "id": "309:1579",
+      "source": "figma",
+      "kind": "container",
+      "name": "Switch",
+      "text": null,
+      "role": null,
+      "componentName": null,
+      "domPath": null,
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "w": 32,
+        "h": 16
+      },
+      "layout": {
+        "display": null,
+        "flexDirection": null,
+        "justifyContent": null,
+        "alignItems": null,
+        "gap": null
+      },
+      "box": {
+        "padding": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "margin": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "typography": {
+        "fontFamily": null,
+        "fontSize": null,
+        "fontWeight": null,
+        "lineHeight": null,
+        "letterSpacing": null,
+        "textAlign": null,
+        "color": null
+      },
+      "fill": {
+        "backgroundColor": {
+          "r": 212,
+          "g": 212,
+          "b": 212,
+          "a": 1
+        },
+        "backgroundKind": "solid",
+        "imageRef": null
+      },
+      "border": {
+        "width": null,
+        "style": null,
+        "color": null,
+        "radius": [
+          999,
+          999,
+          999,
+          999
+        ]
+      },
+      "effect": {
+        "boxShadow": null,
+        "opacity": 0.5
+      },
+      "parentId": "309:1578",
+      "childIds": [
+        "309:1580"
+      ],
+      "isLayoutWrapper": false,
+      "weakCoverage": false
+    },
+    {
+      "id": "309:1580",
+      "source": "figma",
+      "kind": "container",
+      "name": "Switch",
+      "text": null,
+      "role": null,
+      "componentName": null,
+      "domPath": null,
+      "rect": {
+        "x": 1,
+        "y": 1,
+        "w": 14,
+        "h": 14
+      },
+      "layout": {
+        "display": null,
+        "flexDirection": null,
+        "justifyContent": null,
+        "alignItems": null,
+        "gap": null
+      },
+      "box": {
+        "padding": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "margin": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "typography": {
+        "fontFamily": null,
+        "fontSize": null,
+        "fontWeight": null,
+        "lineHeight": null,
+        "letterSpacing": null,
+        "textAlign": null,
+        "color": null
+      },
+      "fill": {
+        "backgroundColor": {
+          "r": 255,
+          "g": 255,
+          "b": 255,
+          "a": 1
+        },
+        "backgroundKind": "solid",
+        "imageRef": null
+      },
+      "border": {
+        "width": null,
+        "style": null,
+        "color": null,
+        "radius": [
+          999,
+          999,
+          999,
+          999
+        ]
+      },
+      "effect": {
+        "boxShadow": null,
+        "opacity": 1
+      },
+      "parentId": "309:1579",
+      "childIds": [],
+      "isLayoutWrapper": false,
+      "weakCoverage": false
+    }
+  ],
+  "rootId": "309:1578"
+}

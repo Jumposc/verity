@@ -1,0 +1,26 @@
+{
+  "name": "@solvir/verity-eval",
+  "version": "0.0.0",
+  "description": "Verity eval: gold set + evaluator + self-iteration loop that tunes schema/weights/prompts.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts --clean",
+    "test": "vitest run --passWithNoTests",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@solvir/verity-agent": "workspace:*",
+    "@solvir/verity-core": "workspace:*"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.1"
+  }
+}

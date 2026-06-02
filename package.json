@@ -1,0 +1,22 @@
+{
+  "name": "verity",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Structured style-fidelity checker: Figma design truth vs implementation. Deterministic measure, AI judges only what needs judgment.",
+  "type": "module",
+  "packageManager": "pnpm@9.12.0",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "typecheck": "pnpm -r typecheck",
+    "clean": "pnpm -r exec rm -rf dist node_modules .tsbuildinfo"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.0",
+    "tsup": "^8.3.0",
+    "vitest": "^2.1.0"
+  }
+}

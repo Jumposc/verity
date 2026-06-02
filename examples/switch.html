@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Verity example — Switch</title>
+    <style>
+      * { margin: 0; box-sizing: border-box; }
+      body { padding: 60px; background: #fff; font-family: Inter, system-ui, sans-serif; }
+    </style>
+  </head>
+  <body>
+    <!--
+      shadcn Switch（Off 态）的实现样例，几何对齐社区设计稿节点 309:1578。
+      跑：verity --figma-file ApDX0UOArDb7rxRJPmKjnY --node 309:1578 \
+                 --url file://<abs>/examples/switch.html --selector "#sw"
+    -->
+    <button
+      id="sw"
+      role="switch"
+      aria-checked="false"
+      style="width:32px;height:16px;border:0;padding:0;border-radius:9999px;background:rgb(212,212,212);opacity:0.5;position:relative;display:block"
+    >
+      <span
+        style="position:absolute;left:1px;top:1px;width:14px;height:14px;border-radius:9999px;background:#ffffff;display:block"
+      ></span>
+    </button>
+  </body>
+</html>

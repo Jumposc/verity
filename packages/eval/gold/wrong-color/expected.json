@@ -1,0 +1,7 @@
+{
+  "id": "wrong-color",
+  "fidelityScore": 70,
+  "criticalFindings": [
+    "backgroundColor"
+  ]
+}

@@ -1,0 +1,164 @@
+{
+  "source": "dom",
+  "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 16
+  },
+  "nodes": [
+    {
+      "id": "button",
+      "source": "dom",
+      "kind": "container",
+      "name": "button[role=switch]",
+      "text": null,
+      "role": "switch",
+      "componentName": null,
+      "domPath": "button",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "w": 32,
+        "h": 16
+      },
+      "layout": {
+        "display": null,
+        "flexDirection": null,
+        "justifyContent": null,
+        "alignItems": null,
+        "gap": null
+      },
+      "box": {
+        "padding": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "margin": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "typography": {
+        "fontFamily": null,
+        "fontSize": null,
+        "fontWeight": null,
+        "lineHeight": null,
+        "letterSpacing": null,
+        "textAlign": null,
+        "color": null
+      },
+      "fill": {
+        "backgroundColor": {
+          "r": 150,
+          "g": 150,
+          "b": 150,
+          "a": 1
+        },
+        "backgroundKind": "solid",
+        "imageRef": null
+      },
+      "border": {
+        "width": null,
+        "style": null,
+        "color": null,
+        "radius": [
+          9999,
+          9999,
+          9999,
+          9999
+        ]
+      },
+      "effect": {
+        "boxShadow": null,
+        "opacity": 0.5
+      },
+      "parentId": null,
+      "childIds": [
+        "button>span:nth-child(1)"
+      ],
+      "isLayoutWrapper": false,
+      "weakCoverage": false
+    },
+    {
+      "id": "button>span:nth-child(1)",
+      "source": "dom",
+      "kind": "container",
+      "name": "span",
+      "text": null,
+      "role": null,
+      "componentName": null,
+      "domPath": "button>span:nth-child(1)",
+      "rect": {
+        "x": 1,
+        "y": 1,
+        "w": 14,
+        "h": 14
+      },
+      "layout": {
+        "display": null,
+        "flexDirection": null,
+        "justifyContent": null,
+        "alignItems": null,
+        "gap": null
+      },
+      "box": {
+        "padding": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "margin": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "typography": {
+        "fontFamily": null,
+        "fontSize": null,
+        "fontWeight": null,
+        "lineHeight": null,
+        "letterSpacing": null,
+        "textAlign": null,
+        "color": null
+      },
+      "fill": {
+        "backgroundColor": {
+          "r": 255,
+          "g": 255,
+          "b": 255,
+          "a": 1
+        },
+        "backgroundKind": "solid",
+        "imageRef": null
+      },
+      "border": {
+        "width": null,
+        "style": null,
+        "color": null,
+        "radius": [
+          9999,
+          9999,
+          9999,
+          9999
+        ]
+      },
+      "effect": {
+        "boxShadow": null,
+        "opacity": 1
+      },
+      "parentId": "button",
+      "childIds": [],
+      "isLayoutWrapper": false,
+      "weakCoverage": false
+    }
+  ],
+  "rootId": "button"
+}
