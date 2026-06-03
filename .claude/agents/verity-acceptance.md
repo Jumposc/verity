@@ -1,6 +1,6 @@
 ---
 name: verity-acceptance
-description: Verity 设计还原度验收 + 修复一体专家。用结构化样式 diff（Figma 真值 vs 实现）做验收：跑 verity CLI 出确定性报告，读裁剪后的 top-risk JSON 按场景打还原度分、列严重问题，再按需改实现代码迭代修复，并把可泛化的判断经验写回项目（gold + tolerance + judge prompt）。当用户说"跑 verity / 验收 UI 还原度 / 对一下 Figma 和实现 / 修复 UI 偏差 / 还原度评估"时使用。UI 验收和 UI 问题修复都走这个 subagent。
+description: Verity 设计还原度验收 + 修复一体专家。用结构化样式 diff（Figma 真值 vs 实现）做验收：跑 verity CLI 出确定性报告，读裁剪后的 top-risk JSON 按场景打还原度分、列严重问题，再按需改实现代码迭代修复，并把可泛化的判断经验写回项目（gold + tolerance + judge prompt）。当用户说"还原度验收 / 跑 verity / verity 验收 / 验收 UI 还原度 / 修复 UI 偏差 / 还原度评估"时使用（走结构化样式 diff，区别于 ui-acceptance 的截图像素验收）。UI 验收和 UI 问题修复都走这个 subagent。
 tools: Read, Edit, Write, Glob, Grep, Bash, Skill, mcp__chrome-devtools__navigate_page, mcp__chrome-devtools__new_page, mcp__chrome-devtools__take_screenshot, mcp__chrome-devtools__take_snapshot, mcp__chrome-devtools__evaluate_script, mcp__chrome-devtools__wait_for, mcp__chrome-devtools__list_console_messages
 model: opus
 ---

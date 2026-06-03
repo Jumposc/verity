@@ -1,6 +1,6 @@
 ---
 name: verity
-description: 用结构化样式数据验收设计还原度——Figma 设计真值 vs 前端实现，属性级 + 几何级 diff，AI 只判定需要判断的部分。当用户要"验收 UI 还原度 / 对比 Figma 和实现 / 跑 verity / 还原度评估"时使用。
+description: 【还原度验收】用结构化样式数据验收设计还原度——Figma 设计真值 vs 前端实现，逐属性 + 几何边界距离 diff，得出"padding 设计 24／实际 20／Δ−4"这类精确数值，AI 只判定需要判断的部分（配对消歧／严重度／修复）。当用户说"还原度验收 / 跑 verity / verity 验收 / 按数值对设计稿 / 还原度评估"时使用。⚠️ 本 skill 走结构化样式 diff（数值化、低 token、精确到属性），区别于 visual-validation 的截图像素比对——要"对到 N px"而非"大概看看"的设计稿验收都走 verity。
 ---
 
 # Verity Skill（Claude Code 入口）
