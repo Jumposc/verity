@@ -1,0 +1,49 @@
+{
+  "source": "dom",
+  "frame": { "x": 0, "y": 0, "w": 200, "h": 80 },
+  "rootId": "div.card",
+  "nodes": [
+    {
+      "id": "div.card",
+      "source": "dom",
+      "kind": "container",
+      "name": "div.card",
+      "text": null,
+      "role": null,
+      "componentName": null,
+      "domPath": "div.card",
+      "rect": { "x": 0, "y": 0, "w": 200, "h": 80 },
+      "layout": { "display": null, "flexDirection": null, "justifyContent": null, "alignItems": null, "gap": null },
+      "box": { "padding": [0, 0, 0, 0], "margin": [0, 0, 0, 0] },
+      "typography": { "fontFamily": null, "fontSize": null, "fontWeight": null, "lineHeight": null, "letterSpacing": null, "textAlign": null, "color": null },
+      "fill": { "backgroundColor": { "r": 255, "g": 255, "b": 255, "a": 1 }, "backgroundKind": "solid", "imageRef": null },
+      "border": { "width": null, "style": null, "color": null, "radius": [8, 8, 8, 8] },
+      "effect": { "boxShadow": null, "opacity": 1 },
+      "parentId": null,
+      "childIds": ["span.title"],
+      "isLayoutWrapper": false,
+      "weakCoverage": false
+    },
+    {
+      "id": "span.title",
+      "source": "dom",
+      "kind": "text",
+      "name": "span.title",
+      "text": "Hello",
+      "role": null,
+      "componentName": null,
+      "domPath": "div.card>span.title",
+      "rect": { "x": 16, "y": 16, "w": 100, "h": 20 },
+      "layout": { "display": null, "flexDirection": null, "justifyContent": null, "alignItems": null, "gap": null },
+      "box": { "padding": [0, 0, 0, 0], "margin": [0, 0, 0, 0] },
+      "typography": { "fontFamily": "Inter", "fontSize": 16, "fontWeight": 600, "lineHeight": 20, "letterSpacing": 0, "textAlign": "left", "color": { "r": 34, "g": 34, "b": 34, "a": 1 } },
+      "fill": { "backgroundColor": null, "backgroundKind": "none", "imageRef": null },
+      "border": { "width": null, "style": null, "color": null, "radius": [0, 0, 0, 0] },
+      "effect": { "boxShadow": null, "opacity": 1 },
+      "parentId": "div.card",
+      "childIds": [],
+      "isLayoutWrapper": false,
+      "weakCoverage": false
+    }
+  ]
+}

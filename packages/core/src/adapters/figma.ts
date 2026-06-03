@@ -186,7 +186,7 @@ export function figmaToStyleTree(root: FigmaApiNode, opts: FigmaToTreeOptions = 
   const origin = root.absoluteBoundingBox ?? { x: 0, y: 0, width: 0, height: 0 };
   const nodes: StyleNode[] = [];
 
-  function walk(n: FigmaApiNode, parentId: string | null): void {
+  function walk(n: FigmaApiNode, parentId: string | null, insideComponent: boolean): void {
     const bb = n.absoluteBoundingBox ?? { x: origin.x, y: origin.y, width: 0, height: 0 };
     const primaryFill = visiblePaint(n.fills);
     const kind = mapKind(n.type, primaryFill);
@@ -242,12 +242,15 @@ export function figmaToStyleTree(root: FigmaApiNode, opts: FigmaToTreeOptions = 
       isLayoutWrapper: false,
       weakCoverage:
         kind === 'vector' || backgroundKind === 'image' || backgroundKind === 'gradient',
+      insideComponent,
     });
 
-    for (const c of n.children ?? []) walk(c, n.id);
+    // INSTANCE 根本身位于页面里（insideComponent 用传入值）；其后代结构由组件定义，标记 inside。
+    const childInside = insideComponent || n.type === 'INSTANCE';
+    for (const c of n.children ?? []) walk(c, n.id, childInside);
   }
 
-  walk(root, null);
+  walk(root, null, false);
 
   return {
     source: 'figma',

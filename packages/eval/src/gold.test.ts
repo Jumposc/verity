@@ -15,10 +15,11 @@ beforeAll(() => {
 });
 
 describe('gold runSample', () => {
-  test('loads all five synthetic samples', () => {
+  test('loads all six synthetic samples', () => {
     expect(entries.map((e) => e.sample.id).sort()).toEqual([
       'faithful',
       'instance-decor-noise',
+      'instance-interior',
       'knob-misplaced',
       'wrong-color',
       'wrong-radius',
@@ -29,6 +30,14 @@ describe('gold runSample', () => {
     // figma 端组件实例内有一层装饰矢量（白底/直角，DOM 端被 CSS 吸收无对应节点）。
     // 类型兼容度生效后该矢量落入 unmatched，不再抢配文本节点产假的 backgroundColor。
     const e = get('instance-decor-noise');
+    expect(runSample(e.figma, e.dom, clamp).findings).toEqual([]);
+  });
+
+  test('instance-interior: 折叠实例内部装饰层、保留内部文本，无假阳性', () => {
+    // figma 组件实例内有装饰 container（蓝条）+ 装饰 vector（icon）+ 内部文本（标题）。
+    // collapseComponentInterior 折叠两个装饰层（DOM 端无对应、本会产假阳性），保留标题文本
+    // 与 DOM 同构比对。装饰是 container（类型兼容度救不了）——必须靠折叠才无假阳性。
+    const e = get('instance-interior');
     expect(runSample(e.figma, e.dom, clamp).findings).toEqual([]);
   });
 

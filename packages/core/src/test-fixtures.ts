@@ -50,6 +50,7 @@ export function makeNode(o: DeepPartial<StyleNode> = {}): StyleNode {
     childIds: o.childIds ?? [],
     isLayoutWrapper: o.isLayoutWrapper ?? false,
     weakCoverage: o.weakCoverage ?? false,
+    insideComponent: o.insideComponent,
   };
 }
 

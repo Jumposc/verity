@@ -4,7 +4,7 @@
  */
 import { diffAttributes, type DiffAttrOptions } from './diff/attributes';
 import { diffGeometry } from './diff/geometry';
-import { foldWrappers } from './match/fold';
+import { collapseComponentInterior, foldWrappers } from './match/fold';
 import { matchTrees, type MatchOptions } from './match/geometry';
 import {
   DEFAULT_TOLERANCE,
@@ -40,9 +40,10 @@ export function computeDiff(
   tolerance: Tolerance = DEFAULT_TOLERANCE,
   opts: ComputeOptions = {},
 ): DiffReport {
-  // 折叠几何重合的 wrapper 链，对齐视觉块后再配对（design.md 11）
-  const ff = foldWrappers(figma);
-  const fd = foldWrappers(dom);
+  // 折叠几何重合的 wrapper 链，对齐视觉块后再配对（design.md 11）；
+  // 再清掉组件实例内部的装饰/结构层（实现端无对应、逐图元 diff 必错配），保留内部文本/图片。
+  const ff = collapseComponentInterior(foldWrappers(figma));
+  const fd = collapseComponentInterior(foldWrappers(dom));
 
   const match = matchTrees(ff, fd, opts.match);
   const geom = diffGeometry(ff, fd, match.pairs);

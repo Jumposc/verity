@@ -101,6 +101,12 @@ export interface StyleNode {
   isLayoutWrapper: boolean;
   /** 结构化弱覆盖（图片 / svg / canvas / 渐变），需截图兜底（design.md 10.1）。 */
   weakCoverage: boolean;
+  /**
+   * 位于组件实例内部（结构由组件定义而非页面自身布局）。实现端用一个封装组件对应整块，
+   * 内部纯装饰/结构层被 CSS 背景/伪元素吸收、不渲染成独立节点——逐图元结构化 diff 必然错位。
+   * fold 据此折叠实例内部装饰层（保留文本/图片内容层）。缺省（undefined）按 false 处理。
+   */
+  insideComponent?: boolean;
 }
 
 /** 一端的完整抽取结果。 */

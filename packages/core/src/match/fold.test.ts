@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { makeNode, makeTree } from '../test-fixtures';
-import { foldWrappers } from './fold';
+import { collapseComponentInterior, foldWrappers } from './fold';
 import { computeDiff } from '../compute';
 import type { StyleNode } from '../schema';
 
@@ -61,6 +61,46 @@ describe('foldWrappers', () => {
     expect(folded.nodes).toHaveLength(2);
     expect(byId(folded.nodes, 'a')!.childIds).toEqual(['leaf']);
     expect(byId(folded.nodes, 'leaf')!.parentId).toBe('a');
+  });
+});
+
+describe('collapseComponentInterior', () => {
+  test('removes interior decoration layers, keeps text content, reparents to instance root', () => {
+    const tree = makeTree('figma', [
+      makeNode({ id: 'inst', rect: { x: 0, y: 0, w: 200, h: 80 }, componentName: 'Card', childIds: ['bar', 'icon', 'title'] }),
+      makeNode({ id: 'bar', kind: 'container', rect: { x: 0, y: 0, w: 200, h: 4 }, parentId: 'inst', insideComponent: true, fill: { backgroundColor: { r: 45, g: 95, b: 240, a: 1 }, backgroundKind: 'solid' } }),
+      makeNode({ id: 'icon', kind: 'vector', rect: { x: 16, y: 44, w: 24, h: 24 }, parentId: 'inst', insideComponent: true }),
+      makeNode({ id: 'title', kind: 'text', rect: { x: 16, y: 16, w: 100, h: 20 }, parentId: 'inst', insideComponent: true, text: 'Hello' }),
+    ]);
+    const out = collapseComponentInterior(tree);
+
+    expect(byId(out.nodes, 'bar')).toBeUndefined(); // 装饰 container 移除
+    expect(byId(out.nodes, 'icon')).toBeUndefined(); // 装饰 vector 移除
+    expect(byId(out.nodes, 'title')).toBeDefined(); // 内部文本保留
+    expect(byId(out.nodes, 'title')!.parentId).toBe('inst'); // reparent 到实例根
+    expect(byId(out.nodes, 'inst')!.childIds).toEqual(['title']);
+    expect(byId(out.nodes, 'inst')!.weakCoverage).toBe(true); // 实例根标弱覆盖（内部交截图兜底）
+  });
+
+  test('reparents interior text up through nested decoration wrappers', () => {
+    const tree = makeTree('figma', [
+      makeNode({ id: 'inst', rect: { x: 0, y: 0, w: 100, h: 40 }, componentName: 'Btn', childIds: ['wrap'] }),
+      makeNode({ id: 'wrap', kind: 'container', rect: { x: 0, y: 0, w: 100, h: 40 }, parentId: 'inst', insideComponent: true, childIds: ['label'] }),
+      makeNode({ id: 'label', kind: 'text', rect: { x: 20, y: 12, w: 60, h: 16 }, parentId: 'wrap', insideComponent: true, text: 'OK' }),
+    ]);
+    const out = collapseComponentInterior(tree);
+
+    expect(byId(out.nodes, 'wrap')).toBeUndefined();
+    expect(byId(out.nodes, 'label')!.parentId).toBe('inst');
+    expect(byId(out.nodes, 'inst')!.childIds).toEqual(['label']);
+  });
+
+  test('leaves nodes without insideComponent untouched (page layout, not a component)', () => {
+    const tree = makeTree('figma', [
+      makeNode({ id: 'page', rect: { x: 0, y: 0, w: 100, h: 100 }, childIds: ['box'] }),
+      makeNode({ id: 'box', kind: 'container', rect: { x: 10, y: 10, w: 50, h: 50 }, parentId: 'page' }),
+    ]);
+    expect(collapseComponentInterior(tree).nodes).toHaveLength(2);
   });
 });
 

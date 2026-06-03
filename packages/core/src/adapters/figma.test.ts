@@ -138,4 +138,19 @@ describe('figmaToStyleTree — field mapping (micro fixtures)', () => {
     expect(tree.nodes[0]!.kind).toBe('vector');
     expect(tree.nodes[0]!.weakCoverage).toBe(true);
   });
+
+  test('INSTANCE marks descendants insideComponent; the instance root itself is not', () => {
+    const tree = figmaToStyleTree(
+      node({
+        id: 'inst',
+        type: 'INSTANCE',
+        children: [
+          node({ id: 'dot', type: 'RECTANGLE', children: [node({ id: 'glyph', type: 'VECTOR' })] }),
+        ],
+      }),
+    );
+    expect(byId(tree.nodes, 'inst')!.insideComponent).toBe(false); // 实例根位于页面里
+    expect(byId(tree.nodes, 'dot')!.insideComponent).toBe(true); // 内部图元
+    expect(byId(tree.nodes, 'glyph')!.insideComponent).toBe(true); // 内部图元（深层）
+  });
 });
