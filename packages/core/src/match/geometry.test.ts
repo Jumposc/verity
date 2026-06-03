@@ -62,4 +62,31 @@ describe('matchTrees', () => {
     expect(res.pairs).toHaveLength(1);
     expect(res.pairs[0]!.ambiguous).toBe(true);
   });
+
+  test('type incompatibility pushes a geometrically-overlapping mismatch below the floor', () => {
+    // figma 装饰矢量与 DOM 文本节点几何完全重叠：纯几何会给 ~0.9 高分错配，
+    // 但 vector↔text 类型兼容度仅 0.1，把综合置信度压到 minConfidence 以下落入 unmatched。
+    const r = { x: 0, y: 0, w: 100, h: 40 };
+    const figma = makeTree('figma', [makeNode({ id: 'decor', kind: 'vector', rect: r })]);
+    const dom = makeTree('dom', [
+      makeNode({ id: 'txt', source: 'dom', kind: 'text', rect: r, text: 'Buy' }),
+    ]);
+    const res = matchTrees(figma, dom);
+
+    expect(res.pairs).toEqual([]);
+    expect(res.unmatchedFigma).toEqual(['decor']);
+    expect(res.unmatchedDom).toEqual(['txt']);
+  });
+
+  test('same-kind vectors still pair (only cross-kind mismatch is penalized)', () => {
+    // 类型兼容度只压制跨类错配，不是把 vector 一律拒——真 icon(vector)↔svg(vector) 照常配。
+    const r = { x: 0, y: 0, w: 24, h: 24 };
+    const figma = makeTree('figma', [makeNode({ id: 'icon', kind: 'vector', rect: r })]);
+    const dom = makeTree('dom', [makeNode({ id: 'svg', source: 'dom', kind: 'vector', rect: r })]);
+    const res = matchTrees(figma, dom);
+
+    expect(res.pairs).toHaveLength(1);
+    expect(res.pairs[0]!.figmaIds).toEqual(['icon']);
+    expect(res.pairs[0]!.confidence).toBeGreaterThan(0.9);
+  });
 });

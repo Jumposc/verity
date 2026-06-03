@@ -15,13 +15,21 @@ beforeAll(() => {
 });
 
 describe('gold runSample', () => {
-  test('loads all four synthetic samples', () => {
+  test('loads all five synthetic samples', () => {
     expect(entries.map((e) => e.sample.id).sort()).toEqual([
       'faithful',
+      'instance-decor-noise',
       'knob-misplaced',
       'wrong-color',
       'wrong-radius',
     ]);
+  });
+
+  test('instance-decor-noise: 实例内部装饰矢量不抢配真实节点，无假阳性', () => {
+    // figma 端组件实例内有一层装饰矢量（白底/直角，DOM 端被 CSS 吸收无对应节点）。
+    // 类型兼容度生效后该矢量落入 unmatched，不再抢配文本节点产假的 backgroundColor。
+    const e = get('instance-decor-noise');
+    expect(runSample(e.figma, e.dom, clamp).findings).toEqual([]);
   });
 
   test('faithful with clampRoundedRadius reports no findings', () => {

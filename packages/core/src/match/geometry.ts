@@ -7,7 +7,7 @@
  * v1 只产单 id 配对；composite（一对多）由后续迭代或 AI 消歧补。
  */
 import { iou } from '../geom';
-import type { MatchResult, MatchSignals, NodePair, Rect, StyleNode, StyleTree } from '../schema';
+import type { MatchResult, MatchSignals, NodeKind, NodePair, Rect, StyleNode, StyleTree } from '../schema';
 
 export interface MatchOptions {
   weights?: Partial<MatchSignals>;
@@ -26,6 +26,34 @@ const DEFAULT_WEIGHTS: MatchSignals = {
   component: 0.1,
   hierarchy: 0.05,
 };
+
+/**
+ * 类型兼容度（0..1），作为综合置信度的乘子。
+ * 实现端不会逐一渲染设计稿里的每个图元——容器/组件实例内部的装饰矢量、纯背景形状层，
+ * 在 DOM 里被 CSS 背景/伪元素吸收，没有独立节点。这类 figma 节点几何上恰好与某个 DOM 节点
+ * 重叠时，仅凭几何信号（其余信号多 not-applicable）就会拿到高置信度被错配（白底配蓝底、圆角配反），
+ * 把真实偏差挤出榜。用类型兼容度给「类型本就配不上」的对打折，让它们落入 unmatched 而非污染 diff。
+ *
+ * 对角线（同类）= 1，不打折；跨类按"实现端是否可能用该类型实现另一类型"给分。
+ * 键按字母序拼接，与 [a,b].sort() 对齐。
+ */
+const KIND_COMPAT: Record<string, number> = {
+  'container|text': 0.6, // div 直接包文字
+  'container|image': 0.6, // div background-image
+  'container|vector': 0.3, // 少数 icon 用 div+mask；多数装饰矢量无 DOM 对应
+  'container|unknown': 0.7,
+  'image|text': 0.1, // 文本 vs 图片，基本不兼容
+  'text|vector': 0.1, // 文本 vs 矢量，基本不兼容
+  'text|unknown': 0.6,
+  'image|vector': 0.5, // 图标/插画实现可互换
+  'image|unknown': 0.6,
+  'unknown|vector': 0.5,
+};
+
+function kindCompatibility(a: NodeKind, b: NodeKind): number {
+  if (a === b) return 1;
+  return KIND_COMPAT[[a, b].sort().join('|')] ?? 0.5;
+}
 
 function normRect(rect: Rect, frame: Rect): Rect {
   const w = frame.w || 1;
@@ -99,8 +127,13 @@ export function matchTrees(figma: StyleTree, dom: StyleTree, opts: MatchOptions 
     add(W.component, component, compApplicable);
     add(W.hierarchy, hierarchy, true);
 
+    // 类型兼容度作为整体乘子：类型本就配不上的对（如 figma 装饰矢量 vs DOM 文本/容器）
+    // 即便几何重叠也压到 minConfidence 以下落入 unmatched，不进 diff 制造假阳性。
+    // signals 仍记各信号原始物理量（geometry=纯 IoU），仅 confidence 受兼容度调制。
+    const compat = kindCompatibility(f.kind, d.kind);
+
     return {
-      confidence: den > 0 ? num / den : 0,
+      confidence: (den > 0 ? num / den : 0) * compat,
       signals: { geometry, text, role, component, hierarchy },
     };
   }
