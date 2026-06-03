@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * verity CLI：一条命令端到端跑设计-实现还原度验收。
- * 参数：--figma-file <key> --node <id> --url <实现页面> [--selector <css>] [--viewport WxH] [--out <文件>]
+ * 参数：--figma-file <key> --node <id> --url <实现页面> [--selector <css>] [--viewport WxH] [--out <文件>] [--max-items <n>]
  * 真值源走 Figma REST（需 FIGMA_TOKEN，可放 .env），实现端走 Playwright。
  */
 import { fileURLToPath } from 'node:url';
@@ -48,6 +48,14 @@ export async function main(argv: string[]): Promise<void> {
   const out = getFlag(argv, 'out');
   const judgeOut = getFlag(argv, 'judge-out');
 
+  // judge 裁剪预算：缺省走 cropForJudge 内置 60。预算偏小时真实差多了会把次要项（如某条间距偏移）挤出榜，
+  // 调大可让更长尾的真实偏差进 judge 视野（代价是 prompt 更长）。
+  const maxItemsFlag = getFlag(argv, 'max-items');
+  const maxItems = maxItemsFlag != null ? Number(maxItemsFlag) : undefined;
+  if (maxItemsFlag != null && (!Number.isInteger(maxItems) || (maxItems as number) <= 0)) {
+    throw new Error(`--max-items 应为正整数，收到：${maxItemsFlag}`);
+  }
+
   const result = await run(opts, {
     figma: new FigmaRestSource(),
     dom: new PlaywrightCapturer({ rootSelector: selector }),
@@ -60,7 +68,7 @@ export async function main(argv: string[]): Promise<void> {
 
   // 裁剪后的 top-risk JSON，供 Claude Code skill 读取做 AI judge
   if (judgeOut) {
-    const judgeInput = cropForJudge(result.diff, { scenario: opts.scenario });
+    const judgeInput = cropForJudge(result.diff, { scenario: opts.scenario, maxItems });
     const judgePath = resolve(judgeOut);
     await writeFile(judgePath, JSON.stringify(judgeInput, null, 2), 'utf8');
     console.log(`judge 输入：${judgePath}`);

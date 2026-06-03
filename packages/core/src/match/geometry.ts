@@ -56,12 +56,6 @@ function depth(node: StyleNode, byId: Map<string, StyleNode>): number {
   return d;
 }
 
-interface Scored {
-  domIndex: number;
-  confidence: number;
-  signals: MatchSignals;
-}
-
 export function matchTrees(figma: StyleTree, dom: StyleTree, opts: MatchOptions = {}): MatchResult {
   const W = { ...DEFAULT_WEIGHTS, ...opts.weights };
   const minConfidence = opts.minConfidence ?? 0.2;
@@ -111,35 +105,97 @@ export function matchTrees(figma: StyleTree, dom: StyleTree, opts: MatchOptions 
     };
   }
 
-  const usedDom = new Set<number>();
-  const pairs: NodePair[] = [];
+  // dom 后代集合（缓存）：把子节点候选限制在已配对父的子树内
+  const domDescCache = new Map<string, string[]>();
+  function domDescendants(domId: string): string[] {
+    const cached = domDescCache.get(domId);
+    if (cached) return cached;
+    const out: string[] = [];
+    const stack = [...(domById.get(domId)?.childIds ?? [])];
+    while (stack.length) {
+      const id = stack.pop()!;
+      const n = domById.get(id);
+      if (!n) continue;
+      out.push(id);
+      for (const c of n.childIds) stack.push(c);
+    }
+    domDescCache.set(domId, out);
+    return out;
+  }
+
+  // figma 自顶向下层级序（root 先）：配父时父已定，可据父约束子的候选域
+  function figmaTopDownOrder(): string[] {
+    const order: string[] = [];
+    const seen = new Set<string>();
+    const q: string[] = [figma.rootId];
+    while (q.length) {
+      const id = q.shift()!;
+      if (seen.has(id)) continue;
+      seen.add(id);
+      const n = figmaById.get(id);
+      if (!n) continue;
+      order.push(id);
+      for (const c of n.childIds) q.push(c);
+    }
+    for (const n of figma.nodes) if (!seen.has(n.id)) order.push(n.id);
+    return order;
+  }
+
+  const allDomIds = dom.nodes.map((n) => n.id);
+  const usedDom = new Set<string>();
+  const figmaToDom = new Map<string, string>();
   const matchedFigma = new Set<string>();
+  const pairs: NodePair[] = [];
 
-  for (const fNode of figma.nodes) {
-    const cands: Scored[] = dom.nodes.map((dNode, domIndex) => ({ domIndex, ...score(fNode, dNode) }));
-    cands.sort((a, b) => b.confidence - a.confidence);
+  // 层级感知贪心：每个 figma 节点优先在「已配对父对应的 DOM 子树」内找配对，
+  // 杜绝跨子树错配（无文本容器节点在粒度差下几何信号弱、易被全局贪心配到相距千 px 的节点）。
+  // 父未配 / 子树内无可用候选时回退全局，再以 minConfidence 兜底过滤弱配。
+  for (const fId of figmaTopDownOrder()) {
+    const fNode = figmaById.get(fId);
+    if (!fNode) continue;
 
-    const best = cands.find((c) => !usedDom.has(c.domIndex) && c.confidence >= minConfidence);
-    if (!best) continue;
+    const domParentId = fNode.parentId ? figmaToDom.get(fNode.parentId) : undefined;
+    let candIds = domParentId
+      ? domDescendants(domParentId).filter((id) => !usedDom.has(id))
+      : allDomIds.filter((id) => !usedDom.has(id));
+    if (candIds.length === 0) candIds = allDomIds.filter((id) => !usedDom.has(id));
 
-    usedDom.add(best.domIndex);
-    matchedFigma.add(fNode.id);
+    let bestId: string | null = null;
+    let bestConf = 0;
+    let bestSignals: MatchSignals | null = null;
+    let secondConf = 0;
+    for (const id of candIds) {
+      const d = domById.get(id);
+      if (!d) continue;
+      const s = score(fNode, d);
+      if (s.confidence > bestConf) {
+        secondConf = bestConf;
+        bestConf = s.confidence;
+        bestId = id;
+        bestSignals = s.signals;
+      } else if (s.confidence > secondConf) {
+        secondConf = s.confidence;
+      }
+    }
+    if (bestId == null || bestConf < minConfidence) continue;
 
-    const second = cands[1];
-    const margin = second ? cands[0]!.confidence - second.confidence : 1;
-    const ambiguous = best.confidence < ambiguousThreshold || margin < ambiguousMargin;
+    usedDom.add(bestId);
+    matchedFigma.add(fId);
+    figmaToDom.set(fId, bestId);
 
+    const margin = bestConf - secondConf;
+    const ambiguous = bestConf < ambiguousThreshold || margin < ambiguousMargin;
     pairs.push({
-      figmaIds: [fNode.id],
-      domIds: [dom.nodes[best.domIndex]!.id],
-      confidence: best.confidence,
-      signals: best.signals,
+      figmaIds: [fId],
+      domIds: [bestId],
+      confidence: bestConf,
+      signals: bestSignals!,
       ambiguous,
     });
   }
 
   const unmatchedFigma = figma.nodes.filter((n) => !matchedFigma.has(n.id)).map((n) => n.id);
-  const unmatchedDom = dom.nodes.filter((_n, i) => !usedDom.has(i)).map((n) => n.id);
+  const unmatchedDom = dom.nodes.filter((n) => !usedDom.has(n.id)).map((n) => n.id);
 
   return { pairs, unmatchedFigma, unmatchedDom };
 }
