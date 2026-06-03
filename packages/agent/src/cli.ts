@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 /**
  * verity CLI：一条命令端到端跑设计-实现还原度验收。
- * 参数：--figma-file <key> --node <id> --url <实现页面> [--selector <css>] [--viewport WxH] [--out <文件>] [--max-items <n>]
+ * 参数：--figma-file <key> --node <id> --url <实现页面> [--selector <css>] [--viewport WxH] [--out <文件>] [--max-items <n>] [--ready-script <jsfile>]
  * 真值源走 Figma REST（需 FIGMA_TOKEN，可放 .env），实现端走 Playwright。
  */
 import { fileURLToPath } from 'node:url';
 import { mkdir, writeFile } from 'node:fs/promises';
+import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { loadEnv } from './env';
 import { run } from './run';
@@ -47,6 +48,9 @@ export async function main(argv: string[]): Promise<void> {
   const selector = getFlag(argv, 'selector');
   const out = getFlag(argv, 'out');
   const judgeOut = getFlag(argv, 'judge-out');
+  // 多状态复现：--ready-script 指向一个 JS 文件（async 函数体），抽取前在页面执行把它操作到目标状态。
+  const readyScriptFile = getFlag(argv, 'ready-script');
+  const readyScript = readyScriptFile ? readFileSync(resolve(readyScriptFile), 'utf8') : undefined;
 
   // judge 裁剪预算：缺省走 cropForJudge 内置 60。预算偏小时真实差多了会把次要项（如某条间距偏移）挤出榜，
   // 调大可让更长尾的真实偏差进 judge 视野（代价是 prompt 更长）。
@@ -58,7 +62,7 @@ export async function main(argv: string[]): Promise<void> {
 
   const result = await run(opts, {
     figma: new FigmaRestSource(),
-    dom: new PlaywrightCapturer({ rootSelector: selector }),
+    dom: new PlaywrightCapturer({ rootSelector: selector, readyScript }),
     reporter: new HtmlReporter({ outPath: out }),
   });
 
