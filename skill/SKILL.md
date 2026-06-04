@@ -48,20 +48,24 @@ node packages/agent/dist/cli.js \
 `Read` `.verity/judge-input.json`（裁剪后的 top-risk：超容差属性差 + 几何差 + baseline），按 [prompts/judge.md](prompts/judge.md) 做**初筛 + 分类**（不是终判）：
 
 - 过滤容差内噪声（ΔE<2、容差内间距）
-- 每条 finding 标 `scope`（page-own / component-internal）、`suspectState`、`businessPath`
+- 每条 finding 标 `scope`（page-own / component-internal）、`suspectState`、`businessPath`（**查代码定位**：figma 节点名 / 文案 grep 命中的组件 + locale + 路由，严禁凭节点名臆测）
 - 给 `severityHint` + `fidelityScore` 初分
 
 产出的是**分类好的客观差距清单**，交下一步终判，先别报给用户。
 
 ### 4. 主 agent 终判 + 多状态复现
 
-judge 只交了初筛清单，最终评判结合设计稿 + 业务语境在这一步做。按 `scope` / `suspectState` 分流：
+⚠️ **终判第一步是查代码，不是看图猜。** 每条 finding 先在代码库定位它的渲染处——用 figma 节点名 / 文案去 grep 命中的组件 + locale + className，落到真实「路由 › 组件 › 字段」。代码是判断的第一来源，据此同时定两件事：
+1. **业务路径**：从命中的组件 / 文案 / 路由写出，figma 节点名只是 grep 线索，**不许凭它臆测**。
+2. **真伪与归类**：对照实现真相判断它是真 bug，还是配置项差异 / 系统字体栈 / 组件库默认 / 几何缩放残差等噪声，并定 `scope`（page-own / component-internal）。代码里能看出"本就如此"的（链接本应蓝、helper 本就 `text-xs`、组件库默认值），直接判噪声 / 预期 / 组件库。
+
+代码定位不到再退 chrome-devtools 目视。然后按 `scope` / `suspectState` 分流：
 
 **A. `page-own` + `suspectState=false` → 页面待修清单**
-直接收下。⚠️ **强制：每条必须业务路径化**——写成 `页面 › 区域/模块 › 用户可见组件` 的业务面包屑（由 figma 节点名 + 页面语境推导），附 design/actual/fixHint。figma 节点 id 只能放在括注里作溯源，**不得当作定位主体**。
+直接收下。⚠️ **强制：每条必须业务路径化**——用步骤 4 的代码定位结果写成 `路由/页面 › 组件/卡片 › 字段（真实文案）` 的业务面包屑，附 design/actual/fixHint + **代码定位**（`文件:行` / className / locale key）。figma 节点 id 只能放在括注里作溯源，**不得当作定位主体**。
 > 设置页 › 卡片区块 › 折叠面板标题 — 与内容间距 figma 16px / 当前 4px（figma 123:45）
 
-**硬性门槛**：待修清单里只要有一条只甩 figma 节点 id（`[123:45]`）或抽象快照代号（如 `--out` 的快照名）而没有业务路径，这份验收即**不合格**——补全业务路径前禁止报给用户。说不清某条的业务路径，就先用 chrome-devtools 打开页面定位它在界面里的位置，定不了再标「待人工确认归属」，不要省略。
+**硬性门槛**：待修清单里只要有一条只甩 figma 节点 id（`[123:45]`）或抽象快照代号（如 `--out` 的快照名）而没有代码落地的业务路径，这份验收即**不合格**——补全前禁止报给用户。定不出归属时：先查代码（grep 文案 / 组件 / className），再退 chrome-devtools 打开页面定位，都定不了才标「待人工确认归属」，不要省略。
 
 **B. `component-internal` → 组件库问题（只暴露不强制修）**
 单独成栏（"需动组件库本体 / 全局样式覆盖"），不计入页面待修。除非用户明确要改组件库。
