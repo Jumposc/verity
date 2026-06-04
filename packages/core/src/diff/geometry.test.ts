@@ -86,6 +86,39 @@ describe('diffGeometry — scale to design space', () => {
   });
 });
 
+describe('diffGeometry — 内部图元跳过几何', () => {
+  // 折叠后内部文本 reparent 到实例根，其 inset 参考系（远祖）与 DOM 实际解析的最近祖先不同构，
+  // content-*/sibling-gap 会产出系统性虚差。insideComponent 的节点只留 attribute diff，不评判几何。
+  test('insideComponent 节点不产 content-* / sibling-gap，顶层兄弟照常', () => {
+    const figma = makeTree('figma', [
+      makeNode({ id: 'root', rect: { x: 0, y: 0, w: 200, h: 100 }, childIds: ['inst', 'sib'] }),
+      // 实例根（非 insideComponent）下挂被 reparent 上来的内部文本（insideComponent），x=48 远离根
+      makeNode({ id: 'inst', rect: { x: 0, y: 0, w: 120, h: 40 }, parentId: 'root', childIds: ['inner'] }),
+      makeNode({ id: 'inner', kind: 'text', rect: { x: 48, y: 20, w: 60, h: 16 }, parentId: 'inst', insideComponent: true, text: 'X' }),
+      // 顶层兄弟（非 insideComponent）
+      makeNode({ id: 'sib', rect: { x: 0, y: 60, w: 120, h: 30 }, parentId: 'root' }),
+    ]);
+    const dom = makeTree('dom', [
+      makeNode({ id: 'd-root', source: 'dom', rect: { x: 0, y: 0, w: 200, h: 100 }, childIds: ['d-inst', 'd-sib'] }),
+      makeNode({ id: 'd-inst', source: 'dom', rect: { x: 0, y: 0, w: 120, h: 40 }, parentId: 'd-root', childIds: ['d-inner'] }),
+      makeNode({ id: 'd-inner', source: 'dom', kind: 'text', rect: { x: 30, y: 18, w: 60, h: 16 }, parentId: 'd-inst', text: 'X' }),
+      makeNode({ id: 'd-sib', source: 'dom', rect: { x: 0, y: 60, w: 120, h: 30 }, parentId: 'd-root' }),
+    ]);
+    const pairs = [
+      pair(['root'], ['d-root']),
+      pair(['inst'], ['d-inst']),
+      pair(['inner'], ['d-inner']),
+      pair(['sib'], ['d-sib']),
+    ];
+    const out = diffGeometry(figma, dom, pairs);
+    // 内部文本（index 2）：content-* 全部跳过（否则会报 48 vs 30 的参考系虚差）
+    expect(out[2]!).toEqual([]);
+    // 顶层节点照常产 inset（inst index 1 相对 root；sib index 3 相对 root）
+    expect(rel(out[1]!, 'content-top')).toBeDefined();
+    expect(rel(out[3]!, 'content-top')).toBeDefined();
+  });
+});
+
 describe('diffGeometry — sibling gap', () => {
   test('measures gap between adjacent row siblings', () => {
     const figma = makeTree('figma', [

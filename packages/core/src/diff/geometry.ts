@@ -81,10 +81,19 @@ export function diffGeometry(
     return null;
   });
 
+  // 组件实例内部图元（insideComponent）的位置 inset 参考系不可靠：折叠装饰层后内部文本被
+  // reparent 到实例根，content-* 改从远祖算，而 DOM 端解析到的最近祖先是另一套结构 —— 两端
+  // 参考系不同构会产出系统性虚差（同一偏移在重复实例上原样复现）。内部图元只保留 attribute
+  // diff（字体/颜色/文案，与结构无关），其几何 inset / sibling-gap 一律不评判。
+  const interior = pairs.map((p) =>
+    p.figmaIds[0] ? !!figmaById.get(p.figmaIds[0])?.insideComponent : false,
+  );
+
   const out: GeometryDiff[][] = pairs.map(() => []);
 
   // content inset 相对最近已配对祖先
   pairs.forEach((_p, i) => {
+    if (interior[i]) return;
     const ai = ancestorPair[i];
     if (ai == null) return;
     const cf = repFigma[i];
@@ -119,6 +128,7 @@ export function diffGeometry(
     for (let k = 1; k < sorted.length; k++) {
       const prev = sorted[k - 1]!;
       const cur = sorted[k]!;
+      if (interior[cur]) continue; // 内部图元的兄弟间隙同样不可信（参考系已被折叠改写）
       const gf = axis === 'x' ? gapX(repFigma[prev]!, repFigma[cur]!) : gapY(repFigma[prev]!, repFigma[cur]!);
       const gd =
         (axis === 'x' ? gapX(repDom[prev]!, repDom[cur]!) : gapY(repDom[prev]!, repDom[cur]!)) * scale;
