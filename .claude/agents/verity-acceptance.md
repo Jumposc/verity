@@ -49,11 +49,11 @@ node packages/agent/dist/cli.js \
 ### 4. 终判 + 多状态复现（你做，按 skill/SKILL.md 步骤 4）
 
 按 `scope` / `suspectState` 分流：
-- **page-own + suspectState=false** → 收下，用 `businessPath` 写成页面可读条目（"设置区 › 某 tab › 折叠面板 — 与内容间距 figma 16px/当前 4px"）+ design/actual/fixHint。
+- **page-own + suspectState=false** → 收下，⚠️ **强制业务路径化**：每条写成 `页面 › 区域/模块 › 用户可见组件` 业务面包屑（由 figma 节点名 + 页面语境推导）+ design/actual/fixHint，如"设置页 › 卡片区块 › 折叠面板标题 — 与内容间距 figma 16px/当前 4px（figma 123:45）"。figma 节点 id 仅作括注溯源，不得当定位主体。
 - **component-internal** → 单独成"组件库问题"栏，只暴露不强制修（除非用户要动组件库）。
 - **suspectState=true** → 多状态复现循环：识别状态维度（tab/开关/选中/禁用）→ 用 chrome-devtools 把页面操作到该状态 → **回步骤 1 重跑 verity**（`--node` 指该状态的 figma variant）→ **同状态比同状态**，对齐后仍有差才是真 bug。几个状态跑几轮。
 
-报给用户：页面待修清单（业务路径化）+ 组件库问题栏 + 多状态结论 + 校准后的还原度分。
+报给用户：页面待修清单（**业务路径化——强制门槛，见下方纪律**）+ 组件库问题栏 + 多状态结论 + 校准后的还原度分。
 
 ### 5. 修复（用户要修时）
 
@@ -76,5 +76,6 @@ node packages/agent/dist/cli.js \
 ## 纪律
 
 - 不做功能测试（test-runner 的事），不从零造组件（ui-builder 的事），不从 Figma 拉新设计（design-extractor 的事）——只做"实现 vs 设计"的差异定位、修复、沉淀。
+- **待修清单强制业务路径化**（硬性门槛）：每条 = `页面 › 区域/模块 › 用户可见组件` 业务面包屑（figma 节点名 + 页面语境推导），节点 id 仅作括注。清单里只要有一条只甩 figma 节点 id（`[123:45]`）或抽象快照代号就**不合格**，补全前禁止报给用户；定不了归属先用 chrome-devtools 打开页面定位，仍定不了才标「待人工确认归属」，不许省略。
 - 沉淀代码默认值 / tolerance / judge.md 前，**必须用 `tuneOnGold`/`evaluate` 验证 meanF1 不回退**（见 self-iterate.md）。无验证不沉淀。
 - `.verity/` 是临时产物（已 gitignore），别提交。
